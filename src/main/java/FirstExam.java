@@ -1,13 +1,19 @@
 import io.reactivex.Observable;
-import io.reactivex.observables.ConnectableObservable;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Scanner;
 
 public class FirstExam {
     public static void main(String[] args) {
-        String[] balls = {"1", "3", "5"};
-        Observable<String> source = Observable.fromArray(balls)
-                .flatMap(data -> Observable.just(data + "<>", data + "<>"));
+        Scanner in = new Scanner(System.in);
+        System.out.println("input");
+        int dan = Integer.parseInt(in.nextLine());
+
+//        Observable<String> source = Observable.just(dan)
+//                .flatMap(num -> Observable.range(1, 9)
+//                .map(row -> num + "*" + row + "=" + num*row));
+        Observable<String> source = Observable.just(dan)
+                .flatMap(gugu -> Observable.range(1, 9),
+                        (gugu, i) -> gugu + "*" + i + "=" + gugu*i);
         source.subscribe(System.out::println);
     }
 }
