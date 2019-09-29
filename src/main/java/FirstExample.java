@@ -6,13 +6,11 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        //source and source2 is same
-        Observable<Long> source = Observable.intervalRange(1, 5, 100L, 100L, TimeUnit.MILLISECONDS);
-        Observable<Long> source2 = Observable.interval(100L, 100L, TimeUnit.MILLISECONDS)
-                .map(val -> val + 1)
-                .take(5);
-        source.subscribe(Log::it);
-        source2.subscribe(Log::it);
-        CommonUtils.sleep(1000);
+        String[] balls = {"1", "3", "5"};
+        Observable<String> source = Observable.fromArray(balls)
+                .repeat(3);
+
+        source.doOnComplete(() -> System.out.println("onComplete\n\n"))
+                .subscribe(Log::it);
     }
 }
