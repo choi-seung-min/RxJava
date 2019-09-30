@@ -14,7 +14,8 @@ public class FirstExample {
                 .map(Long::intValue)
                 .map(idx -> balls[idx])
                 .take(balls.length)
-                .concatMap(ball -> Observable.interval(200L, TimeUnit.MILLISECONDS)
+                .doOnNext(Log::it)
+                .switchMap(ball -> Observable.interval(200L, TimeUnit.MILLISECONDS)
                 .map(notUsed -> ball + "<>")
                 .take(2)
                 );
