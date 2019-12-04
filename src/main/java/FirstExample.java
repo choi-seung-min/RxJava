@@ -12,40 +12,20 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        new FirstExample().run();
-    }
+        String[] data1 = {"1", "3"};
+        String[] data2 = {"2", "4", "6"};
 
-    public void run(){
-        ConnectableObservable<String> source = UserInput();
-        Observable<Integer> a = source
-                .filter(str -> str.startsWith("a:"))
-                .map(str -> str.replace("a:", ""))
-                .map(Integer::parseInt);
-        Observable<Integer> b = source
-                .filter(str -> str.startsWith("b:"))
-                .map(str -> str.replace("b:", ""))
-                .map(Integer::parseInt);
-        Observable.combineLatest(
-                a.startWith(0),
-                b.startWith(0),
-                (x, y) -> x + y)
-                .subscribe(res -> System.out.println("Result: " + res));
-        source.connect();
-    }
+        Observable<String> source1 = Observable.interval(0L, 100L, TimeUnit.MILLISECONDS)
+                .map(Long::intValue)
+                .map(idx -> data1[idx])
+                .take(data1.length);
+        Observable<String> source2 = Observable.interval(50L, TimeUnit.MILLISECONDS)
+                .map(Long::intValue)
+                .map(idx -> data2[idx])
+                .take(data2.length);
+        Observable<String> source = Observable.merge(source1, source2);
 
-    public ConnectableObservable<String> UserInput(){
-        return Observable.create((ObservableEmitter<String> emitter) -> {
-            Scanner in = new Scanner(System.in);
-            while (true){
-                System.out.println("Input: ");
-                String line = in.nextLine();
-                emitter.onNext(line);
-
-                if (line.indexOf("exit") >= 0){
-                    in.close();
-                    break;
-                }
-            }
-        }).publish();
+        source.subscribe(System.out::println);
+        CommonUtils.sleep(1000);
     }
 }
