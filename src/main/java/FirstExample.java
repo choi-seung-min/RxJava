@@ -1,16 +1,51 @@
+import com.sun.tools.jdeprscan.scan.Scan;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.observables.ConnectableObservable;
 import io.reactivex.observables.GroupedObservable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 
 public class FirstExample {
     public static void main(String[] args) {
-        String[] balls = {"1", "2", "3"};
-        Observable<String> source = Observable.fromArray(balls)
-                .scan((ball1, ball2) -> ball2 + "(" + ball1 + ")");
-        source.subscribe(System.out::println);
+        new FirstExample().run();
+    }
+
+    public void run(){
+        ConnectableObservable<String> source = UserInput();
+        Observable<Integer> a = source
+                .filter(str -> str.startsWith("a:"))
+                .map(str -> str.replace("a:", ""))
+                .map(Integer::parseInt);
+        Observable<Integer> b = source
+                .filter(str -> str.startsWith("b:"))
+                .map(str -> str.replace("b:", ""))
+                .map(Integer::parseInt);
+        Observable.combineLatest(
+                a.startWith(0),
+                b.startWith(0),
+                (x, y) -> x + y)
+                .subscribe(res -> System.out.println("Result: " + res));
+        source.connect();
+    }
+
+    public ConnectableObservable<String> UserInput(){
+        return Observable.create((ObservableEmitter<String> emitter) -> {
+            Scanner in = new Scanner(System.in);
+            while (true){
+                System.out.println("Input: ");
+                String line = in.nextLine();
+                emitter.onNext(line);
+
+                if (line.indexOf("exit") >= 0){
+                    in.close();
+                    break;
+                }
+            }
+        }).publish();
     }
 }
