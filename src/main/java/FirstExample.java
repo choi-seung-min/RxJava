@@ -15,20 +15,13 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        String[] data1 = {"1", "3", "5"};
-        String[] data2 = {"2-R", "4-R"};
+        String[] data = {"1", "2", "3", "4", "5", "6"};
 
-        List<Observable<String>> sources = Arrays.asList(
-                Observable.fromArray(data1)
-                .doOnComplete(() -> System.out.println("Observable #1 : onComplete()")),
-                Observable.fromArray(data2)
-                .delay(100L, TimeUnit.MILLISECONDS)
-                .doOnComplete(() -> System.out.println("Observable #2 : onComplete()"))
-        );
+        Observable<String> source = Observable.fromArray(data)
+                .zipWith(Observable.interval(100L, TimeUnit.MILLISECONDS), (val, time) -> val)
+                .takeUntil(Observable.interval(500L, TimeUnit.MILLISECONDS));
 
-        Observable.amb(sources)
-                .doOnComplete(() -> System.out.println("Result : onComplete()"))
-                .subscribe(System.out::println);
+        source.subscribe(System.out::println);
         CommonUtils.sleep(1000);
     }
 }
