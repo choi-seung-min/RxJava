@@ -16,30 +16,10 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        Integer[] data = {1, 2, 3,4 };
-
-        //count
-        Single<Long> source = Observable.fromArray(data)
-                .count();
-        source.subscribe(count -> System.out.println("Count: " + count));
-
-        //min & max
-        Flowable.fromArray(data)
-                .to(MathFlowable::max)
-                .subscribe(max -> System.out.println("Max: " + max));
-
-        Flowable.fromArray(data)
-                .to(MathFlowable::min)
-                .subscribe(min -> System.out.println("Min: " + min));
-
-        //sun & average
-        Flowable<Integer> flowable = Flowable.fromArray(data)
-                .to(MathFlowable::sumInt);
-        flowable.subscribe(sum -> System.out.println("Sum: " + sum));
-
-        Flowable<Double> flowable1 = Observable.fromArray(data)
-                .toFlowable(BackpressureStrategy.BUFFER)
-                .to(MathFlowable::averageDouble);
-        flowable1.subscribe(avg -> System.out.println("Avg: " + avg));
+        String[] data = {"1", "7", "2", "3", "4"};
+        Observable<String> source = Observable.fromArray(data)
+                .delay(100L, TimeUnit.MILLISECONDS);
+        source.subscribe(System.out::println);
+        CommonUtils.sleep(1000);
     }
 }
