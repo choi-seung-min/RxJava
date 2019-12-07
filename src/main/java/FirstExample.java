@@ -18,14 +18,17 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        String[] obj = {"1-S", "2-T", "3-P"};
-        Observable<String> source = Observable.fromArray(obj)
-                .doOnNext(data -> Log.it("Original data = " + data))
+        String[] orgs = {"1", "3", "5"};
+        Observable.fromArray(orgs).doOnNext(data -> Log.it("Original data: " + data))
+                .map(data -> "<<" + data + ">>")
                 .subscribeOn(Schedulers.newThread())
-                .observeOn(Schedulers.newThread())
-                .map(data  -> data + "(flipped)");
+                .subscribe(Log::it);
+        CommonUtils.sleep(500);
 
-        source.subscribe(Log::it);
-        CommonUtils.sleep(1000);
+        Observable.fromArray(orgs).doOnNext(data -> Log.it("Original data: " + data))
+                .map(data -> "##" + data + "##")
+                .subscribeOn(Schedulers.newThread())
+                .subscribe(Log::it);
+        CommonUtils.sleep(500);
     }
 }
