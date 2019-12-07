@@ -4,6 +4,7 @@ import io.reactivex.*;
 import io.reactivex.functions.Action;
 import io.reactivex.observables.ConnectableObservable;
 import io.reactivex.observables.GroupedObservable;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.schedulers.Timed;
 
 import java.sql.Time;
@@ -17,17 +18,14 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        String[] data = {"1", "3", "7"};
+        String[] obj = {"1-S", "2-T", "3-P"};
+        Observable<String> source = Observable.fromArray(obj)
+                .doOnNext(data -> Log.it("Original data = " + data))
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(Schedulers.newThread())
+                .map(data  -> data + "(flipped)");
 
-        CommonUtils.exampleStart();
-        Observable<Timed<String>> source = Observable.fromArray(data)
-                .delay(item -> {
-                    CommonUtils.doSomething();
-                    return Observable.just(item);
-                })
-                .timeInterval();
-
-        source.subscribe(System.out::println);
+        source.subscribe(Log::it);
         CommonUtils.sleep(1000);
     }
 }
