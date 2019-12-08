@@ -19,16 +19,16 @@ import java.util.concurrent.TimeUnit;
 public class FirstExample {
     public static void main(String[] args) {
         String[] orgs = {"1", "3", "5"};
-        Observable.fromArray(orgs).doOnNext(data -> Log.it("Original data: " + data))
-                .map(data -> "<<" + data + ">>")
-                .subscribeOn(Schedulers.newThread())
-                .subscribe(Log::it);
-        CommonUtils.sleep(500);
+        Observable<String> source = Observable.fromArray(orgs)
+                .zipWith(Observable.interval(100L, TimeUnit.MILLISECONDS), (a, b) -> a);
 
-        Observable.fromArray(orgs).doOnNext(data -> Log.it("Original data: " + data))
-                .map(data -> "##" + data + "##")
-                .subscribeOn(Schedulers.newThread())
+        source.map(item -> "<<" + item + ">>")
+                .subscribeOn(Schedulers.computation())
                 .subscribe(Log::it);
-        CommonUtils.sleep(500);
+
+        source.map(item -> "##" + item + "##")
+                .subscribeOn(Schedulers.computation())
+                .subscribe(Log::it);
+        CommonUtils.sleep(1000);
     }
 }
