@@ -14,16 +14,21 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
 public class FirstExample {
     public static void main(String[] args) {
-        Observable<Integer> numbers = Observable.range(100, 5);
-        Observable<String> chars = Observable.range(0, 5).map(CommonUtils::numberToAlphabet);
+        final int THREAD_NUM = 10;
 
-        numbers.subscribeOn(Schedulers.single()).subscribe(Log::it);
-        chars.subscribeOn(Schedulers.single()).subscribe(Log::it);
+        String[] data = {"1", "3", "5"};
+        Observable<String> source = Observable.fromArray(data);
+        Executor executor = Executors.newFixedThreadPool(THREAD_NUM);
+
+        source.subscribeOn(Schedulers.from(executor)).subscribe(Log::it);
+        source.subscribeOn(Schedulers.from(executor)).subscribe(Log::it);
         CommonUtils.sleep(500);
     }
 }
