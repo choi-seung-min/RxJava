@@ -19,14 +19,17 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        String root = "c:\\";
-        File[] files = new File(root).listFiles();
-        Observable<String> source = Observable.fromArray(files)
-                .filter(f -> !f.isDirectory())
-                .map(f -> f.getAbsolutePath())
-                .subscribeOn(Schedulers.io());
+        String[] orgs = {"1", "3", "5"};
+        Observable<String> source = Observable.fromArray(orgs);
 
-        source.subscribe(Log::it);
+        source.subscribeOn(Schedulers.trampoline())
+                .map(data -> "<<" + data + ">>")
+                .subscribe(Log::it);
+
+        source.subscribeOn(Schedulers.trampoline())
+                .map(data -> "##" + data + "##")
+                .subscribe(Log::it);
+
         CommonUtils.sleep(500);
     }
 }
