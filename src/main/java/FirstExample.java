@@ -19,17 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 public class FirstExample {
     public static void main(String[] args) {
-        String[] orgs = {"1", "3", "5"};
-        Observable<String> source = Observable.fromArray(orgs);
+        Observable<Integer> numbers = Observable.range(100, 5);
+        Observable<String> chars = Observable.range(0, 5).map(CommonUtils::numberToAlphabet);
 
-        source.subscribeOn(Schedulers.trampoline())
-                .map(data -> "<<" + data + ">>")
-                .subscribe(Log::it);
-
-        source.subscribeOn(Schedulers.trampoline())
-                .map(data -> "##" + data + "##")
-                .subscribe(Log::it);
-
+        numbers.subscribeOn(Schedulers.single()).subscribe(Log::it);
+        chars.subscribeOn(Schedulers.single()).subscribe(Log::it);
         CommonUtils.sleep(500);
     }
 }

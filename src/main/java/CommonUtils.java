@@ -33,4 +33,10 @@ public class CommonUtils {
         if (obj.endsWith("<>")) return "DIAMOND";
         return "BALL";
     }
+
+    public static final String ALPHABET = "ACDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    public static final String numberToAlphabet(long x){
+        return Character.toString(ALPHABET.charAt((int)x % ALPHABET.length()));
+    }
 }
