@@ -26,44 +26,38 @@ public class FirstExample {
     private final OkHttpClient client = new OkHttpClient();
 
     private static final String FIRST_URL = "https://api.github.com/zen";
-    private static final String SECOND_URL = CommonUtils.GITHUB_ROOT + "/samples/callback_hell";
+    private static final String SECOND_URL = CommonUtils.GITHUB_ROOT + "/samples/callback_heaven";
 
-    private Callback onSuccess = new Callback() {
-        @Override
-        public void onFailure(Call call, IOException e) {
-            e.printStackTrace();
-        }
+    public void usingConcat() {
+        CommonUtils.exampleStart();
+        Observable<String> source = Observable.just(FIRST_URL)
+                .subscribeOn(Schedulers.io())
+                .map(OkHttpHelper::get)
+                .concatWith(Observable.just(SECOND_URL)
+                        .map(OkHttpHelper::get));
+        source.subscribe(Log::it);
+        CommonUtils.sleep(5000);
+        CommonUtils.exampleComplete();
+    }
 
-        @Override
-        public void onResponse(Call call, Response response) throws IOException {
-            Log.i(response.body().string());
-        }
-    };
+    public void usingZip() {
+        CommonUtils.exampleStart();
+        Observable<String> first = Observable.just(FIRST_URL)
+                .subscribeOn(Schedulers.io())
+                .map(OkHttpHelper::get);
+        Observable<String> second = Observable.just(SECOND_URL)
+                .subscribeOn(Schedulers.io())
+                .map(OkHttpHelper::get);
 
-    public void run(){
-        Request request = new Request.Builder()
-                .url(FIRST_URL)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.i(response.body().string());
-
-                Request request = new Request.Builder()
-                        .url(SECOND_URL)
-                        .build();
-                client.newCall(request).enqueue(onSuccess);
-            }
-        });
+        Observable.zip(first, second,
+                (a, b) -> ("\n>>" + a + "\n>>" + b))
+                .subscribe(Log::it);
+        CommonUtils.sleep(5000);
     }
 
     public static void main(String[] args) {
         FirstExample example = new FirstExample();
-        example.run();
+//        example.usingConcat();
+        example.usingZip();
     }
 }

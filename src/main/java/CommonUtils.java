@@ -10,6 +10,10 @@ public class CommonUtils {
         startTime = System.currentTimeMillis();
     }
 
+    public static void exampleComplete() {
+        System.out.println("-----------------------");
+    }
+
     public static void doSomething(){
         try {
             Thread.sleep(new Random().nextInt(100));
