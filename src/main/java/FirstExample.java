@@ -38,7 +38,7 @@ public class FirstExample {
 
     public static void main(String[] args) {
         FirstExample example = new FirstExample();
-//        example.usingConcat();
-        example.usingZip();
+        example.usingConcat();
+//        example.usingZip();
     }
 }
