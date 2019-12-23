@@ -2,43 +2,54 @@ import io.reactivex.*;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class FirstExample {
 
-    private final OkHttpClient client = new OkHttpClient();
-
-    private static final String FIRST_URL = "https://api.github.com/zen";
-    private static final String SECOND_URL = CommonUtils.GITHUB_ROOT + "/samples/callback_heaven";
-
-    public void usingConcat() {
-        CommonUtils.exampleStart();
-        Observable<String> source = Observable.just(FIRST_URL)
-                .subscribeOn(Schedulers.io())
-                .map(OkHttpHelper::get)
-                .concatWith(Observable.just(SECOND_URL)
-                        .map(OkHttpHelper::get));
-        source.subscribe(Log::it);
-        CommonUtils.sleep(5000);
-        CommonUtils.exampleComplete();
-    }
-
-    public void usingZip() {
-        CommonUtils.exampleStart();
-        Observable<String> first = Observable.just(FIRST_URL)
-                .subscribeOn(Schedulers.io())
-                .map(OkHttpHelper::get);
-        Observable<String> second = Observable.just(SECOND_URL)
-                .subscribeOn(Schedulers.io())
-                .map(OkHttpHelper::get);
-
-        Observable.zip(first, second,
-                (a, b) -> ("\n>>" + a + "\n>>" + b))
-                .subscribe(Log::it);
-        CommonUtils.sleep(5000);
-    }
+    private static final String URL =
+            "http://api.openweathermap.org/data/2.5/weather?q=London&APPID=";
+    private static final String API_KEY =
+            "7ca2f60e46f39207e2f1514370cc9832";
 
     public static void main(String[] args) {
         FirstExample example = new FirstExample();
-//        example.usingConcat();
-        example.usingZip();
+        example.run();
+    }
+
+    private String parse(String json, String regex){
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(json);
+        if (matcher.find()){
+            return matcher.group();
+        }
+        return "N/A";
+    }
+
+    private String parseTemp(String json){
+        return parse(json, "\"temp\":[0-9]*.[0-9]*");
+    }
+
+    private String parseCity(String json){
+        return parse(json, "\"name\":\"[a-zA-Z]*\"");
+    }
+
+    private String parseCountry(String json){
+        return parse(json, "\"country\":\"[a-zA-Z]*\"");
+    }
+
+    public void run(){
+        Observable<String> source = Observable.just(URL + API_KEY)
+                .map(OkHttpHelper::getWithLog)
+                .subscribeOn(Schedulers.io());
+
+        Observable<String> temp = source.map(this::parseTemp);
+        Observable<String> city = source.map(this::parseCity);
+        Observable<String> country = source.map(this::parseCountry);
+
+        Observable.concat(temp, city, country)
+                .observeOn(Schedulers.newThread())
+                .subscribe(Log::it);
+        CommonUtils.sleep(3000);
     }
 }
