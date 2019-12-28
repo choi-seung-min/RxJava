@@ -1,7 +1,9 @@
 import io.reactivex.*;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.*;
+import org.graalvm.compiler.nodes.PrefetchAllocateNode;
 
+import java.util.prefs.PreferenceChangeEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,17 +41,18 @@ public class FirstExample {
     }
 
     public void run(){
+        CommonUtils.exampleStart();
+
         Observable<String> source = Observable.just(URL + API_KEY)
                 .map(OkHttpHelper::getWithLog)
-                .subscribeOn(Schedulers.io());
+                .subscribeOn(Schedulers.io())
+                .share()
+                .observeOn(Schedulers.newThread());
 
-        Observable<String> temp = source.map(this::parseTemp);
-        Observable<String> city = source.map(this::parseCity);
-        Observable<String> country = source.map(this::parseCountry);
+        source.map(this::parseTemp).subscribe(Log::it);
+        source.map(this::parseCity).subscribe(Log::it);
+        source.map(this::parseCountry).subscribe(Log::it);
 
-        Observable.concat(temp, city, country)
-                .observeOn(Schedulers.newThread())
-                .subscribe(Log::it);
         CommonUtils.sleep(3000);
     }
 }
